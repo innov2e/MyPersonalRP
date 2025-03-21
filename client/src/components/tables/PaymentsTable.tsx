@@ -84,8 +84,8 @@ const PaymentsTable: React.FC<PaymentsTableProps> = ({ payments, onEdit, isLoadi
       `${payment.costCenter.category} - ${payment.costCenter.subcategory}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatDate = (dateString: string | Date) => {
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
     return date.toLocaleDateString('it-IT');
   };
 

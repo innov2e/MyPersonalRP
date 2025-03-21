@@ -141,6 +141,7 @@ const PaymentsTable: React.FC<PaymentsTableProps> = ({ payments, onEdit, isLoadi
               <TableHead>Sottocategoria</TableHead>
               <TableHead className="w-[100px]">Data pagamento</TableHead>
               <TableHead>Importo</TableHead>
+              <TableHead>Descrizione</TableHead>
               <TableHead>Conto</TableHead>
               <TableHead>Allegati</TableHead>
               <TableHead className="text-right">Azioni</TableHead>
@@ -149,13 +150,13 @@ const PaymentsTable: React.FC<PaymentsTableProps> = ({ payments, onEdit, isLoadi
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
+                <TableCell colSpan={9} className="text-center py-8">
                   Caricamento pagamenti...
                 </TableCell>
               </TableRow>
             ) : paginatedData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
+                <TableCell colSpan={9} className="text-center py-8">
                   Nessun pagamento trovato.
                 </TableCell>
               </TableRow>
@@ -163,7 +164,7 @@ const PaymentsTable: React.FC<PaymentsTableProps> = ({ payments, onEdit, isLoadi
               paginatedData.map((payment) => (
                 <TableRow key={payment.id} className="hover:bg-gray-50">
                   <TableCell className="whitespace-nowrap">
-                    {payment.description}
+                    {payment.costCenter.category} - {payment.costCenter.subcategory}
                   </TableCell>
                   <TableCell className="whitespace-nowrap">
                     {payment.costCenter.category}
@@ -176,6 +177,9 @@ const PaymentsTable: React.FC<PaymentsTableProps> = ({ payments, onEdit, isLoadi
                   </TableCell>
                   <TableCell className="whitespace-nowrap font-medium">
                     {formatCurrency(Number(payment.amount))}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    {payment.description}
                   </TableCell>
                   <TableCell className="whitespace-nowrap">
                     {payment.account.name}

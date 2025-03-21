@@ -153,31 +153,15 @@ const PaymentModal = ({ isOpen, onClose, mode, paymentId }: PaymentModalProps) =
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>
             {mode === 'create' ? 'Nuovo Pagamento' : 'Modifica Pagamento'}
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Data</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="date"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 max-h-[70vh] overflow-y-auto pr-1">
+            {/* Riga 1: Descrizione */}
             <FormField
               control={form.control}
               name="description"
@@ -187,7 +171,7 @@ const PaymentModal = ({ isOpen, onClose, mode, paymentId }: PaymentModalProps) =
                   <FormControl>
                     <Textarea 
                       placeholder="Inserisci una descrizione"
-                      className="resize-none"
+                      className="resize-none h-20"
                       {...field}
                     />
                   </FormControl>
@@ -196,138 +180,160 @@ const PaymentModal = ({ isOpen, onClose, mode, paymentId }: PaymentModalProps) =
               )}
             />
             
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Importo (€)</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      step="0.01"
-                      placeholder="0.00"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="accountId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Conto</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value?.toString()}
-                  >
+            {/* Riga 2: Data e Importo */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Data</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleziona un conto" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {accounts?.length ? accounts.map((account) => (
-                        <SelectItem key={account.id} value={account.id ? account.id.toString() : "0"}>
-                          {account.name}
-                        </SelectItem>
-                      )) : (
-                        <SelectItem value="no-accounts">Nessun conto disponibile</SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="costCenterId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Centro di Costo</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value?.toString()}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleziona un centro di costo" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {costCenters?.length ? costCenters.map((costCenter) => (
-                        <SelectItem key={costCenter.id} value={costCenter.id ? costCenter.id.toString() : "0"}>
-                          {costCenter.category} - {costCenter.subcategory}
-                        </SelectItem>
-                      )) : (
-                        <SelectItem value="no-cost-centers">Nessun centro di costo disponibile</SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <div>
-              <Label htmlFor="receipt">Allegato Ricevuta</Label>
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                <div className="space-y-1 text-center">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <div className="flex text-sm text-gray-600 justify-center">
-                    <label htmlFor="receipt-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                      <span>{receiptFile ? receiptFile.name : 'Carica un file'}</span>
-                      <input
-                        id="receipt-upload"
-                        ref={receiptFileRef}
-                        name="receipt"
-                        type="file"
-                        className="sr-only"
-                        onChange={handleReceiptChange}
+                      <Input 
+                        type="date"
+                        {...field}
                       />
-                    </label>
-                    {!receiptFile && <p className="pl-1">o trascina e rilascia</p>}
-                  </div>
-                  <p className="text-xs text-gray-500">PNG, JPG, PDF fino a 10MB</p>
-                </div>
-              </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Importo (€)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        step="0.01"
+                        placeholder="0.00"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             
-            <div>
-              <Label htmlFor="request">Allegato Richiesta</Label>
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                <div className="space-y-1 text-center">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <div className="flex text-sm text-gray-600 justify-center">
-                    <label htmlFor="request-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                      <span>{requestFile ? requestFile.name : 'Carica un file'}</span>
-                      <input
-                        id="request-upload"
-                        ref={requestFileRef}
-                        name="request"
-                        type="file"
-                        className="sr-only"
-                        onChange={handleRequestChange}
-                      />
-                    </label>
-                    {!requestFile && <p className="pl-1">o trascina e rilascia</p>}
+            {/* Riga 3: Centro di Costo e Conto */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="costCenterId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Centro di Costo</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value?.toString()}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona un centro di costo" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {costCenters?.length ? costCenters.map((costCenter) => (
+                          <SelectItem key={costCenter.id} value={costCenter.id ? costCenter.id.toString() : "0"}>
+                            {costCenter.category} - {costCenter.subcategory}
+                          </SelectItem>
+                        )) : (
+                          <SelectItem value="no-cost-centers">Nessun centro di costo disponibile</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="accountId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Conto</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value?.toString()}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona un conto" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {accounts?.length ? accounts.map((account) => (
+                          <SelectItem key={account.id} value={account.id ? account.id.toString() : "0"}>
+                            {account.name}
+                          </SelectItem>
+                        )) : (
+                          <SelectItem value="no-accounts">Nessun conto disponibile</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
+            {/* Riga 4: Allegati */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="receipt">Allegato Ricevuta</Label>
+                <div className="mt-1 flex justify-center p-2 border-2 border-gray-300 border-dashed rounded-md">
+                  <div className="text-center">
+                    <svg className="mx-auto h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                      <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <div className="text-sm text-gray-600">
+                      <label htmlFor="receipt-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
+                        <span className="text-xs">{receiptFile ? receiptFile.name : 'Carica un file'}</span>
+                        <input
+                          id="receipt-upload"
+                          ref={receiptFileRef}
+                          name="receipt"
+                          type="file"
+                          className="sr-only"
+                          onChange={handleReceiptChange}
+                        />
+                      </label>
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-500">PNG, JPG, PDF fino a 10MB</p>
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="request">Allegato Richiesta</Label>
+                <div className="mt-1 flex justify-center p-2 border-2 border-gray-300 border-dashed rounded-md">
+                  <div className="text-center">
+                    <svg className="mx-auto h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                      <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <div className="text-sm text-gray-600">
+                      <label htmlFor="request-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
+                        <span className="text-xs">{requestFile ? requestFile.name : 'Carica un file'}</span>
+                        <input
+                          id="request-upload"
+                          ref={requestFileRef}
+                          name="request"
+                          type="file"
+                          className="sr-only"
+                          onChange={handleRequestChange}
+                        />
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <DialogFooter className="mt-6">
+            <DialogFooter className="mt-4 pt-2 border-t">
               <Button 
                 type="button" 
                 variant="outline" 

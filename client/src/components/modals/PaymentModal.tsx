@@ -23,6 +23,12 @@ const formSchema = insertPaymentSchema.extend({
     (val) => !isNaN(parseFloat(val)),
     { message: 'Amount must be a valid number' }
   ),
+  accountId: z.union([z.string(), z.number()]).transform(val => 
+    typeof val === 'string' ? parseInt(val, 10) : val
+  ),
+  costCenterId: z.union([z.string(), z.number()]).transform(val => 
+    typeof val === 'string' ? parseInt(val, 10) : val
+  ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -63,8 +69,8 @@ const PaymentModal = ({ isOpen, onClose, mode, paymentId }: PaymentModalProps) =
       date: '',
       amount: '',
       description: '',
-      accountId: undefined,
-      costCenterId: undefined,
+      accountId: 0,
+      costCenterId: 0,
     },
     values: mode === 'edit' && payment ? {
       date: payment.date ? new Date(payment.date).toISOString().split('T')[0] : '',
@@ -229,7 +235,7 @@ const PaymentModal = ({ isOpen, onClose, mode, paymentId }: PaymentModalProps) =
                     <FormLabel>Centro di Costo</FormLabel>
                     <Select 
                       onValueChange={field.onChange} 
-                      defaultValue={field.value?.toString()}
+                      value={field.value?.toString() || "0"}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -259,7 +265,7 @@ const PaymentModal = ({ isOpen, onClose, mode, paymentId }: PaymentModalProps) =
                     <FormLabel>Conto</FormLabel>
                     <Select 
                       onValueChange={field.onChange} 
-                      defaultValue={field.value?.toString()}
+                      value={field.value?.toString() || "0"}
                     >
                       <FormControl>
                         <SelectTrigger>

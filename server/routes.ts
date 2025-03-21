@@ -35,12 +35,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Serve uploads
   app.use("/api/uploads", (req, res, next) => {
-    const fileName = req.path.slice(1);
+    // Decode the URL-encoded filename
+    const fileName = decodeURIComponent(req.path.slice(1));
     const filePath = path.join(uploadsDir, fileName);
     
     if (fs.existsSync(filePath)) {
       res.sendFile(filePath);
     } else {
+      console.error(`File not found: ${filePath}`);
       res.status(404).json({ message: "File not found" });
     }
   });

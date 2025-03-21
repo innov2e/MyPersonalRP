@@ -236,8 +236,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Process payment data
       const paymentData = JSON.parse(req.body.data);
       
+      // Create a custom schema for the payment data from the frontend
+      const customPaymentSchema = z.object({
+        date: z.string().transform(val => new Date(val)),
+        amount: z.number(),
+        description: z.string(),
+        accountId: z.number(),
+        costCenterId: z.number(),
+        receiptPath: z.string().optional().nullable(),
+        requestPath: z.string().optional().nullable()
+      });
+      
       // Validate payment data
-      const validatedData = validateRequest(insertPaymentSchema, {
+      const validatedData = validateRequest(customPaymentSchema, {
         ...paymentData,
         receiptPath: undefined,
         requestPath: undefined
@@ -287,8 +298,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Process payment data
       const paymentData = JSON.parse(req.body.data);
       
+      // Create a custom schema for the payment data from the frontend
+      const customPaymentSchema = z.object({
+        date: z.string().transform(val => new Date(val)).optional(),
+        amount: z.number().optional(),
+        description: z.string().optional(),
+        accountId: z.number().optional(),
+        costCenterId: z.number().optional(),
+        receiptPath: z.string().optional().nullable(),
+        requestPath: z.string().optional().nullable(),
+        removeReceipt: z.boolean().optional(),
+        removeRequest: z.boolean().optional()
+      });
+      
       // Validate payment data
-      const validatedData = validateRequest(insertPaymentSchema.partial(), {
+      const validatedData = validateRequest(customPaymentSchema, {
         ...paymentData,
         receiptPath: undefined,
         requestPath: undefined

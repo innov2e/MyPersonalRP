@@ -76,8 +76,8 @@ const CostCentersTable: React.FC<CostCentersTableProps> = ({ costCenters, onEdit
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Categoria</TableHead>
-              <TableHead>Sottocategoria</TableHead>
+              <TableHead>Categoria / Sottocategoria</TableHead>
+              <TableHead></TableHead>
               <TableHead className="text-right">Azioni</TableHead>
             </TableRow>
           </TableHeader>
@@ -95,32 +95,53 @@ const CostCentersTable: React.FC<CostCentersTableProps> = ({ costCenters, onEdit
                 </TableCell>
               </TableRow>
             ) : (
-              costCenters.map((costCenter) => (
-                <TableRow key={costCenter.id} className="hover:bg-gray-50">
-                  <TableCell className="font-medium">{costCenter.category}</TableCell>
-                  <TableCell>{costCenter.subcategory}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-indigo-600 hover:text-indigo-900"
-                        onClick={() => onEdit(costCenter)}
-                      >
-                        <Pencil className="h-5 w-5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-red-600 hover:text-red-900"
-                        onClick={() => handleDelete(costCenter.id)}
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
+              (() => {
+                // Group cost centers by category
+                const groupedCostCenters: { [key: string]: CostCenter[] } = {};
+                costCenters.forEach(costCenter => {
+                  if (!groupedCostCenters[costCenter.category]) {
+                    groupedCostCenters[costCenter.category] = [];
+                  }
+                  groupedCostCenters[costCenter.category].push(costCenter);
+                });
+                
+                // Render grouped cost centers
+                return Object.entries(groupedCostCenters).map(([category, centers]) => (
+                  <React.Fragment key={category}>
+                    <TableRow className="bg-gray-100">
+                      <TableCell colSpan={3} className="font-bold text-gray-700">
+                        {category}
+                      </TableCell>
+                    </TableRow>
+                    {centers.map((costCenter) => (
+                      <TableRow key={costCenter.id} className="hover:bg-gray-50">
+                        <TableCell className="pl-8"></TableCell>
+                        <TableCell>{costCenter.subcategory}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-indigo-600 hover:text-indigo-900"
+                              onClick={() => onEdit(costCenter)}
+                            >
+                              <Pencil className="h-5 w-5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-red-600 hover:text-red-900"
+                              onClick={() => handleDelete(costCenter.id)}
+                            >
+                              <Trash2 className="h-5 w-5" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </React.Fragment>
+                ));
+              })()
             )}
           </TableBody>
         </Table>

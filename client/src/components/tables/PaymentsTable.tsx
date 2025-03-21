@@ -39,7 +39,7 @@ const PaymentsTable: React.FC<PaymentsTableProps> = ({ payments, onEdit, isLoadi
   const [paymentToDelete, setPaymentToDelete] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const itemsPerPage = 5;
+  const itemsPerPage = 2; // Ridotto a 2 per facilitare il test della paginazione
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
@@ -136,7 +136,6 @@ const PaymentsTable: React.FC<PaymentsTableProps> = ({ payments, onEdit, isLoadi
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Centro di Costo</TableHead>
               <TableHead>Categoria</TableHead>
               <TableHead>Sottocategoria</TableHead>
               <TableHead className="w-[100px]">Data pagamento</TableHead>
@@ -150,22 +149,19 @@ const PaymentsTable: React.FC<PaymentsTableProps> = ({ payments, onEdit, isLoadi
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8">
+                <TableCell colSpan={8} className="text-center py-8">
                   Caricamento pagamenti...
                 </TableCell>
               </TableRow>
             ) : paginatedData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8">
+                <TableCell colSpan={8} className="text-center py-8">
                   Nessun pagamento trovato.
                 </TableCell>
               </TableRow>
             ) : (
               paginatedData.map((payment) => (
                 <TableRow key={payment.id} className="hover:bg-gray-50">
-                  <TableCell className="whitespace-nowrap">
-                    {payment.costCenter.category} - {payment.costCenter.subcategory}
-                  </TableCell>
                   <TableCell className="whitespace-nowrap">
                     {payment.costCenter.category}
                   </TableCell>

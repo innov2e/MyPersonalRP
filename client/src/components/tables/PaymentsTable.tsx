@@ -84,14 +84,6 @@ const PaymentsTable: React.FC<PaymentsTableProps> = ({ payments, onEdit, isLoadi
       `${payment.costCenter.category} - ${payment.costCenter.subcategory}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Paginate payments
-  const paginatedPayments = filteredPayments.slice(
-    (page - 1) * itemsPerPage,
-    page * itemsPerPage
-  );
-  
-  const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('it-IT');
@@ -102,6 +94,31 @@ const PaymentsTable: React.FC<PaymentsTableProps> = ({ payments, onEdit, isLoadi
     if (!path) return;
     window.open(`/api/uploads/${path}`, '_blank');
   };
+
+  // Sort payments according to requirements and apply pagination
+  const sortAndPaginate = () => {
+    // Create a copy to sort
+    const sorted = [...filteredPayments].sort((a, b) => {
+      // First by category (ascending)
+      const categoryComp = a.costCenter.category.localeCompare(b.costCenter.category);
+      if (categoryComp !== 0) return categoryComp;
+      
+      // Then by subcategory (ascending)
+      const subcategoryComp = a.costCenter.subcategory.localeCompare(b.costCenter.subcategory);
+      if (subcategoryComp !== 0) return subcategoryComp;
+      
+      // Then by date (descending - most recent first)
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+    
+    // Apply pagination
+    return {
+      paginatedData: sorted.slice((page - 1) * itemsPerPage, page * itemsPerPage),
+      totalPages: Math.ceil(sorted.length / itemsPerPage)
+    };
+  };
+  
+  const { paginatedData, totalPages } = sortAndPaginate();
 
   return (
     <>
@@ -119,11 +136,12 @@ const PaymentsTable: React.FC<PaymentsTableProps> = ({ payments, onEdit, isLoadi
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px]">Data</TableHead>
-              <TableHead>Descrizione</TableHead>
+              <TableHead>Centro di Costo</TableHead>
+              <TableHead>Categoria</TableHead>
+              <TableHead>Sottocategoria</TableHead>
+              <TableHead className="w-[100px]">Data pagamento</TableHead>
               <TableHead>Importo</TableHead>
               <TableHead>Conto</TableHead>
-              <TableHead>Centro di Costo</TableHead>
               <TableHead>Allegati</TableHead>
               <TableHead className="text-right">Azioni</TableHead>
             </TableRow>
@@ -131,31 +149,36 @@ const PaymentsTable: React.FC<PaymentsTableProps> = ({ payments, onEdit, isLoadi
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={8} className="text-center py-8">
                   Caricamento pagamenti...
                 </TableCell>
               </TableRow>
-            ) : paginatedPayments.length === 0 ? (
+            ) : paginatedData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={8} className="text-center py-8">
                   Nessun pagamento trovato.
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedPayments.map((payment) => (
+              paginatedData.map((payment) => (
                 <TableRow key={payment.id} className="hover:bg-gray-50">
+                  <TableCell className="whitespace-nowrap">
+                    {payment.description}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    {payment.costCenter.category}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    {payment.costCenter.subcategory}
+                  </TableCell>
                   <TableCell className="whitespace-nowrap">
                     {formatDate(payment.date)}
                   </TableCell>
-                  <TableCell>{payment.description}</TableCell>
                   <TableCell className="whitespace-nowrap font-medium">
                     {formatCurrency(Number(payment.amount))}
                   </TableCell>
                   <TableCell className="whitespace-nowrap">
                     {payment.account.name}
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap">
-                    {payment.costCenter.category} - {payment.costCenter.subcategory}
                   </TableCell>
                   <TableCell className="whitespace-nowrap">
                     <div className="flex space-x-2">
@@ -217,7 +240,6 @@ const PaymentsTable: React.FC<PaymentsTableProps> = ({ payments, onEdit, isLoadi
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
                   className={page === 1 ? "pointer-events-none opacity-50" : ""}
                 />
               </PaginationItem>
@@ -234,7 +256,6 @@ const PaymentsTable: React.FC<PaymentsTableProps> = ({ payments, onEdit, isLoadi
               <PaginationItem>
                 <PaginationNext
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page === totalPages}
                   className={page === totalPages ? "pointer-events-none opacity-50" : ""}
                 />
               </PaginationItem>
